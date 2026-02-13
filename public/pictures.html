@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Image Gallery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #ff6a00, #ee0979, #6a11cb);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 25px;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+.card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+}
+
+.card .content {
+  padding: 12px;
+}
+
+.copy-btn {
+  width: 100%;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff6a00, #ee0979);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  opacity: 0.9;
+}
+
+/* success box */
+.toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: linear-gradient(135deg, #00c853, #00e676);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+
+<body>
+
+<h1>🖼️ Image CDN Gallery</h1>
+
+<div class="gallery" id="gallery"></div>
+
+<div id="toast" class="toast">✅ CDN copied successfully</div>
+
+<script>
+const images = [
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_223803.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_223900.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_230247.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_230327.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_230835.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_230900.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_230925.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_230955.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_231110.jpg"
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_231134.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_231432.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_231625.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_231807.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F0b427261-2393-496b-93e2-fdae88de37e9%2FScreenshot_20260213_231912.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F9ed4422a-c1b1-4b92-9eaf-258b37cc30b0%2FScreenshot_20260214_000226.jpg",
+  "https://s3.amazonaws.com/arena_images-temp/uploads%2F9ed4422a-c1b1-4b92-9eaf-258b37cc30b0%2FScreenshot_20260214_000605.jpg",
+];
+
+const gallery = document.getElementById("gallery");
+const toast = document.getElementById("toast");
+
+function addImage(url) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
+    <img src="${url}">
+    <div class="content">
+      <button class="copy-btn" onclick="copyUrl('${url}')">
+        📋 Copy Image URL
+      </button>
+    </div>
+  `;
+  gallery.appendChild(card);
+}
+
+function copyUrl(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    showToast();
+  });
+}
+
+function showToast() {
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2000);
+}
+
+images.forEach(addImage);
+</script>
+
+</body>
+</html>
