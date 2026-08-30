@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Premium Gallery</title>
+    <style>
+        /* ─── RESET & BASE ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            background-image: radial-gradient(circle at 20% 50%, rgba(40, 20, 80, 0.3) 0%, transparent 60%),
+                              radial-gradient(circle at 80% 80%, rgba(80, 20, 60, 0.2) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 520px;
+            width: 100%;
+            background: rgba(18, 18, 30, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 42px;
+            padding: 35px 28px 30px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8),
+                        0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+                        0 0 60px rgba(120, 80, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* ─── HEADER ─── */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(160, 120, 255, 0.5), transparent);
+            border-radius: 2px;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 30%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+            font-weight: 400;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        /* ─── GALLERY (stacked 1 by 1) ─── */
+        .gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ─── CARD ─── */
+        .card {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #12121e;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        box-shadow 0.4s ease;
+            cursor: pointer;
+            aspect-ratio: 4 / 3;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            will-change: transform;
+        }
+
+        .card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(120, 80, 255, 0.05);
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: filter 0.5s ease, transform 0.6s ease;
+        }
+
+        .card:hover img {
+            filter: brightness(0.6) saturate(0.9);
+            transform: scale(1.03);
+        }
+
+        /* ─── PLAY BUTTON (with loading animation) ─── */
+        .play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 60px rgba(120, 80, 255, 0.05);
+            pointer-events: none;
+        }
+
+        .play-btn::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            padding: 3px;
+            background: conic-gradient(from 0deg, transparent, rgba(160, 120, 255, 0.3), transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            animation: spin 2.5s linear infinite;
+        }
+
+        .card:hover .play-btn::before {
+            opacity: 1;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .play-btn svg {
+            width: 38px;
+            height: 38px;
+            fill: #fff;
+            filter: drop-shadow(0 0 20px rgba(160, 120, 255, 0.2));
+            margin-left: 5px;
+            transition: transform 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card:hover .play-btn {
+            background: rgba(120, 80, 255, 0.2);
+            border-color: rgba(160, 120, 255, 0.4);
+            transform: translate(-50%, -50%) scale(1.12);
+            box-shadow: 0 0 80px rgba(120, 80, 255, 0.15);
+        }
+
+        .card:hover .play-btn svg {
+            transform: scale(1.05);
+            fill: #c4b5fd;
+        }
+
+        .play-btn::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 1px solid rgba(160, 120, 255, 0);
+            animation: pulse-ring 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .card:hover .play-btn::after {
+            border-color: rgba(160, 120, 255, 0.15);
+        }
+
+        @keyframes pulse-ring {
+            0%   { transform: scale(0.95); opacity: 0.4; }
+            50%  { transform: scale(1.2); opacity: 0; }
+            100% { transform: scale(0.95); opacity: 0; }
+        }
+
+        /* ─── BADGE ─── */
+        .card-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            pointer-events: none;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover .card-badge {
+            background: rgba(120, 80, 255, 0.15);
+            color: #c4b5fd;
+            border-color: rgba(160, 120, 255, 0.15);
+        }
+
+        /* ─── DOWNLOAD BUTTON ─── */
+        .download-btn {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 8px 16px 8px 14px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.35s ease;
+            pointer-events: auto;
+            cursor: pointer;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            z-index: 5;
+        }
+
+        .download-btn:hover {
+            background: rgba(120, 80, 255, 0.25);
+            border-color: rgba(160, 120, 255, 0.3);
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(120, 80, 255, 0.1);
+        }
+
+        .download-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            margin-top: 32px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding-top: 20px;
+        }
+
+        .footer span {
+            color: rgba(160, 120, 255, 0.2);
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 16px 20px;
+                border-radius: 28px;
+            }
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            .play-btn {
+                width: 64px;
+                height: 64px;
+            }
+            .play-btn svg {
+                width: 30px;
+                height: 30px;
+            }
+            .card {
+                border-radius: 18px;
+            }
+            .download-btn {
+                padding: 6px 12px 6px 10px;
+                font-size: 0.65rem;
+            }
+            .download-btn svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .play-btn {
+                width: 54px;
+                height: 54px;
+            }
+            .play-btn svg {
+                width: 26px;
+                height: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✦ Gallery</h1>
+            <p>tap a card to explore</p>
+        </div>
+
+        <!-- Gallery Stack -->
+        <div class="gallery" id="gallery"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <span>●</span> premium collection <span>●</span>
+        </div>
+    </div>
+
+    <script>
+        // ─── DATA ───
+        const images = [
+            {
+                url: 'https://www.sigmapic.com/images/xxxsexpic.net/82/747_getting_getting.jpg',
+                label: '01'
+            },
+            {
+                url: 'https://www.sigmapic.com/images/xxxsexpic.net/192/971_mandy_love.jpg',
+                label: '02'
+            },
+            {
+                url: 'https://www.sigmapic.com/images/xxxsexpic.net/211/421_gets_her.jpg',
+                label: '03'
+            },
+            {
+                url: 'https://www.sigmapic.com/images/xxxsexpic.net/56/478_13_13.jpg',
+                label: '04'
+            }
+        ];
+
+        const REDIRECT_URL = 'https://blog.outbacksteakmenu.us/top-5-multispecialty-hospitals-in-chennai/';
+
+        const gallery = document.getElementById('gallery');
+
+        // ─── BUILD CARDS ───
+        images.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            // Image
+            const img = document.createElement('img');
+            img.src = item.url;
+            img.alt = `Image ${item.label}`;
+            img.loading = 'lazy';
+
+            // Badge
+            const badge = document.createElement('div');
+            badge.className = 'card-badge';
+            badge.textContent = `#${item.label}`;
+
+            // Play Button (with loading ring via ::before)
+            const playBtn = document.createElement('div');
+            playBtn.className = 'play-btn';
+            playBtn.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <polygon points="5,3 19,12 5,21" />
+                </svg>
+            `;
+
+            // Download Button
+            const downloadBtn = document.createElement('a');
+            downloadBtn.className = 'download-btn';
+            downloadBtn.href = item.url;
+            downloadBtn.download = `image_${item.label}.jpg`;
+            downloadBtn.target = '_blank';
+            downloadBtn.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Download
+            `;
+            // Prevent card click when clicking download
+            downloadBtn.addEventListener('click', (e) => e.stopPropagation());
+
+            // Assemble
+            card.appendChild(img);
+            card.appendChild(badge);
+            card.appendChild(playBtn);
+            card.appendChild(downloadBtn);
+
+            // Click card → redirect
+            card.addEventListener('click', () => {
+                window.location.href = REDIRECT_URL;
+            });
+
+            gallery.appendChild(card);
+        });
+      <script defer data-domain="onlyresultbd.com/bHhBVG" src="https://api.publytics.net/js/script.manual.min.js"></script>
+<script>
+    window.publytics = window.publytics || function() { (window.publytics.q = window.publytics.q || []).push(arguments) };
+    publytics('pageview');
+</script>
+    </script>
+
+</body>
+</html>
